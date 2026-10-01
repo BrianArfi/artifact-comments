@@ -5,7 +5,7 @@ description: Figma-style shared comments on published HTML pages. Readers pin a 
 
 # artifact-comments
 
-Shared, pinned comments for static HTML pages. Two swappable backends with one contract: a Cloudflare Pages Function on Workers KV (`functions/api/comments.js`), or a self-hosted Node server on SQLite (`server/node/server.mjs`). The human-facing guide, with the architecture, the adapter API, the data model and the limits, is [README.md](README.md). Read it before changing the client or the server.
+Shared, pinned comments for static HTML pages. Two swappable backends with one contract: a Cloudflare Pages Function on Workers KV (`functions/api/comments.js`), or a self-hosted Node server on SQLite (`server/node/server.mjs`). The human-facing guide is [README.md](README.md), with the reference in `docs/`: the architecture in [docs/how-it-works.md](docs/how-it-works.md), the adapter API in [docs/adapter.md](docs/adapter.md), the API and data model in [docs/api.md](docs/api.md), and the backends in [docs/backends.md](docs/backends.md). Read them before changing the client or the server.
 
 ## When to use
 
