@@ -3,6 +3,11 @@
 All notable changes to artifact-comments are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-10-01
+
+### Changed
+- The README is rewritten around the problem it solves: the shift, the gap, the fix, the loop and a capability table come first. Every technical section is kept. No code changes.
+
 ## [1.0.0] - 2026-09-30
 <!-- source: git log of the private source repo, commit "feat(artifact-comments): v1.0.0 standalone, swappable backend" (2026-09-30), exported as tag v1.0.0 by publish_skill_repo.py -->
 

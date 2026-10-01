@@ -1,72 +1,136 @@
 # artifact-comments
 
-**Your AI-made pages can now be commented on like Figma. One script tag, no accounts.**
+**Your AI-made pages can now take comments, like Figma. One script tag, no accounts.**
 
-AI makes a good explainer, prototype or deck in minutes. But a shared link has no comment button, so readers do not know where to give feedback. They send marked-up screenshots, write "the thing top left", or say nothing. With this script, readers click any part of the page and write. Their comment is pinned to that exact spot, with threads, replies and a list that jumps to each part. The backend is yours: Cloudflare Pages with Workers KV, or one Node file on SQLite that you host yourself.
+Add one line to any HTML page. Readers click any part of it and write a comment. The comment stays pinned to that exact spot, with threads, replies and a list that jumps to each part. The comments live on your own backend: Cloudflare Pages with Workers KV, or one Node file on SQLite.
+
+artifact-comments is part of the [AI Prototype Kit](https://github.com/BrianArfi/ai-prototype-kit), where it is the comment layer on every page the kit publishes. It also works on its own, on any static page.
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
-[![Zero dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)](#files)
+[![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-green.svg)](CHANGELOG.md)
+[![Works on any static page](https://img.shields.io/badge/works%20on-any%20static%20page-orange.svg)](#requirements)
 
-![A reader pins a comment, a second reader replies, and the list jumps to a comment on another tab](docs/demo.gif)
+![A reader pins a comment on a part of the page, a second reader replies in the thread, and the comment list jumps to a part on another tab](docs/demo.gif)
 
-It is made for the pages you send out for feedback: explainers, mockups, clickable prototypes, slide decks, reports. A reader clicks **Comment**, clicks any part of the page, and types a name and a note. A numbered pin appears on that spot for everyone who opens the page.
+## The shift: AI made visual explanations easy
 
-## Try it in 60 seconds
+In the AI era, the fastest way to explain an idea is a page you can see and click. AI builds one in minutes: an explainer, a clickable prototype, a slide deck. That beats a long document or a week of waiting for a design file.
+
+| Command (in the kit) | What AI builds | Example |
+| :--- | :--- | :--- |
+| [`/artifact`](https://github.com/BrianArfi/ai-prototype-kit/blob/main/commands/artifact.md) | An explainer page: a system, a proposal or a report, readable on a phone | `/artifact how our refund process works, for the support team` |
+| [`/mockup`](https://github.com/BrianArfi/ai-prototype-kit/blob/main/commands/mockup.md) | A clickable prototype of a flow, with a presenter mode | `/mockup an order-ahead flow for a coffee shop, for the investor meeting` |
+| [`/deck`](https://github.com/BrianArfi/ai-prototype-kit/blob/main/commands/deck.md) | A slide deck in one HTML file, driven from the keyboard | `/deck a ten-slide stakeholder update on the pricing change` |
+
+## The gap: a shared page has no comment button
+
+The page looks good. Then you send the link, and the feedback goes somewhere else, or nowhere:
+
+- The replies are chat screenshots with red circles. Three people, three chats, three versions of scribbles.
+- "The top left one." Which top left? On which slide? Which version?
+- "Looks good." Then silence, because real comments are a hassle to give.
+- Your answers end up in another chat, where the other reviewers never see them.
+
+The better AI makes the page, the more feedback you lose.
+
+## The fix: every part of the page takes comments
+
+Add one script tag, and the page gets a **Comment** button at the bottom right. A reader clicks it, clicks any part of the page, types a name and a note, and a numbered pin appears on that spot for everyone who opens the link. Others reply in the same thread. You open the same link and find every note where it belongs.
+
+| Before | After |
+| :--- | :--- |
+| Feedback arrives as screenshots in many chats | Every comment lives on the page itself |
+| Guessing which part "this one" means | Every comment is pinned to the exact spot that was clicked |
+| Reviewers have to create an account first | Reviewers type a name once |
+| Your replies end up in another chat | Replies sit under the comment, visible to everyone |
+
+## Who it is for
+
+Anyone who sends HTML pages out for feedback: PMs, founders, consultants, designers and team leads who share explainers, mockups, clickable prototypes, slide decks or reports. It suits unlisted review links sent to people who should not need to sign up for anything. If you need verified identity, roles or tracker integrations, a hosted review tool is a better fit (see [How it compares](#how-it-compares)).
+
+## The loop
+
+```mermaid
+flowchart LR
+  A["1. Add one script tag<br/>to your page"] --> B["2. Share the link"]
+  B --> C["3. Readers click a part<br/>and write"]
+  C --> D["4. Others reply<br/>in the thread"]
+  D --> E["5. You read, reply<br/>and moderate"]
+  E -- "revise the page,<br/>same link" --> B
+```
+
+1. **Add one script tag** before `</body>`. If AI built the page, ask it to add the line:
+
+   ```html
+   <script src="/artifact-comments.js" data-slug="my-page" defer></script>
+   ```
+
+2. **Share the link.** Serve the page from Cloudflare Pages, or from the Node server: `node server/node/server.mjs --static ./my-pages`.
+3. **Readers click a part and write.** They press **Comment**, point at any part (it is outlined), click, and type a name and a note. `Ctrl` + `Enter` posts.
+4. **Others reply in the thread.** Click a numbered pin to open its thread and reply at the bottom.
+5. **You read, reply and moderate.** Open the same link and use the **Comments** list, or read every thread from the terminal: `python scripts/comments_cli.py list --base https://my-site.pages.dev --slug my-page`. Remove spam with `delete`, and undo it with `restore`.
+
+## What it can do
+
+| What you get | Use it for |
+| :--- | :--- |
+| **Pins on the exact spot.** Each thread is a numbered pin at the point that was clicked, not only the element. Pins follow the page when it scrolls, animates or resizes, and hide when their part is off screen | Feedback on a specific button, number or sentence, with no guessing |
+| **Threads and replies.** Click a pin to open its thread. Replies are one level deep, as in Figma | Answering a reviewer where the other reviewers can see it |
+| **A list that jumps.** Every thread in one list, with who, when, where and the reply count. Click one and the page goes to that part, even on another tab, slide or screen, then flashes it and opens the thread | Working through a round of review, one comment at a time |
+| **No accounts.** A reader types a name once, and the browser remembers it | Getting feedback from clients, bosses and outside reviewers |
+| **Safe on live pages.** The picking click never reaches the page, and neither do keys typed into a comment. `Esc` backs out one step at a time. **Hide pins** gives a clean view for presenting | Comments on decks and prototypes that react to clicks, arrows and the space bar |
+| **Nothing lost.** A failed or offline post stays on screen as "Not sent" with Retry, survives a reload, and resends when the connection comes back | Reviewers on a train or a weak office network |
+| **Pages with state.** A small [adapter](#pages-with-state-the-adapter) lets tabs, slide decks and walkthroughs restore the right view for each comment | Prototypes, walkthroughs and decks where one spot shows different content |
+| **Your backend, your data.** Cloudflare Pages + Workers KV, or one Node file on SQLite, with the same API and client. A Python [owner CLI](#owner-cli-reading-and-moderating-comments) lists, deletes and restores comments | Keeping review data in your own account or on your own server |
+
+The UI draws inside a Shadow DOM, so your CSS cannot break it and it cannot break your CSS. There is no build step and no npm package: one browser script, one server file.
+
+![A comment thread with a reply, pinned to a part of the page](docs/thread.png)
+
+![The comment list, showing where each comment is and how many replies it has](docs/list.png)
+
+## Quick start
 
 You need Node 22.13 or later. Nothing is installed from npm.
+
+**1. Get the code.**
 
 ```bash
 git clone https://github.com/BrianArfi/artifact-comments
 cd artifact-comments
-node server/node/server.mjs --static examples
 ```
 
-Open <http://127.0.0.1:8787/demo>, press **Comment** at the bottom right, and click anything. Open the page in a second browser to see the comment arrive.
-
-To put it on your own pages, serve their folder instead and add one line before `</body>`:
+**2. Serve your pages with comments.** Point the server at the folder that holds your HTML files:
 
 ```bash
 node server/node/server.mjs --static ./my-pages
 ```
 
+The server serves `/artifact-comments.js` itself, so there is nothing to copy. It serves clean URLs: `/my-page` opens `my-page.html`.
+
+**3. Add the script to each page**, just before `</body>`:
+
 ```html
 <script src="/artifact-comments.js" data-slug="my-page" defer></script>
 ```
 
-The server serves `/artifact-comments.js` itself, so there is nothing to copy. For production, see [Choose your backend](#choose-your-backend).
+`data-slug` names the page's comment list. Leave it out to use the file name.
 
-## Features
+**4. Open the page and comment.** Open <http://127.0.0.1:8787/my-page>, press **Comment** at the bottom right, and click anything.
 
-| | |
-| :--- | :--- |
-| **Pins on the exact spot** | Each thread is a numbered pin at the point that was clicked, not only the element. Pins follow the page when it scrolls, animates or resizes. |
-| **Threads and replies** | Click a pin to open its thread. Replies are one level deep, as in Figma. |
-| **A list that jumps** | Every thread in one list, with who, when and where. Click one and the page goes to that part, even on another tab, slide or screen. |
-| **No accounts** | A reader types a name once, and the browser remembers it. |
-| **Safe on live pages** | The picking click never reaches the page, and neither do keys typed into a comment, so decks and prototypes do not move. |
-| **Nothing lost** | A failed or offline post stays as "Not sent" with Retry, survives a reload, and resends when the connection comes back. |
-| **Isolated UI** | Everything draws in a Shadow DOM. Your CSS cannot break it, and it cannot break your CSS. |
-| **Pages with state** | A small [adapter](#pages-with-state-the-adapter) lets tabs, slide decks and walkthroughs restore the right view for each comment. |
-| **Two backends** | Cloudflare Pages + Workers KV, or a single-file Node server on SQLite. The same API, the same client. |
-| **Zero dependencies** | One browser script, one server file. No build step, no framework, no npm packages. |
+**5. Put it online.** Run the same server on a host you control, in [Docker](#docker), or use [Cloudflare Pages + KV](#cloudflare-pages--kv) for a backend you do not run yourself. The choice is in [Choose your backend](#choose-your-backend).
 
-## What readers get
+### Try it first
 
-- **Comment on a part.** Press Comment, point at any element (the element under the cursor is outlined), click, write. The page does not react to that click, so a button in a prototype does not fire while you point at it.
-- **Pins on the exact spot.** Each thread is a numbered pin at the point that was clicked, not just the element. Pins follow the page when it scrolls, animates or resizes, and hide when their part is not on screen.
-- **Threads and replies.** Click a pin to open the thread. Reply at the bottom. Replies are one level deep, as in Figma.
-- **A list that jumps.** The Comments button lists every thread with who, when, where and the reply count. Click one and the page goes to that part, even when it sits on another tab, slide or screen. It scrolls to it, flashes it and opens the thread.
-- **Names without accounts.** A reader types a name once. The browser remembers it.
-- **Nothing lost.** A comment that cannot be sent (offline, server error) stays on screen as "Not sent" with a Retry button, survives a reload, and is sent again automatically when the connection comes back. A background refresh never wipes a reply being typed.
-- **Keyboard.** `Ctrl` + `Enter` (or `Cmd` + `Enter`) posts. `Esc` closes the form, then the thread, then leaves comment mode. Keys typed into a comment never reach the page, so a slide deck or player that uses the space bar or arrows does not move while someone types.
-- **Hide pins** for a clean view while presenting. The choice is remembered for that page.
+The repository has a demo page with tabs, a scroll box and an iframe:
 
-![A comment thread with a reply, pinned to a part of the page](docs/thread.png)
+```bash
+node server/node/server.mjs --static examples
+```
 
-![The comment list, with where each comment is and its replies](docs/list.png)
+Open <http://127.0.0.1:8787/demo>, press **Comment**, and click anything. Open the page in a second browser to see the comment arrive. Pin a comment on the second tab, go back to the first, then click that comment in the **Comments** list: the page switches tabs to reach it.
 
-## How it works
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -355,34 +419,9 @@ KV is eventually consistent. A comment can take up to about 60 seconds to reach 
 - **Owner endpoints** on the Node server are off until a token is set, need `Authorization: Bearer <token>`, and never send CORS headers.
 - **CORS is opt-in** on both backends. Unset, only same-origin pages can post.
 - Caps: 1,000 comments per page, 8 KB per request, the field limits above.
+- **No export or import yet.** Comments cannot be moved between backends in 1.0.0. The server sets `id` and `at` on every post, so re-posting records would not keep them.
 - **The keyboard shield has one gap.** A page listener registered on `window` in the capture phase before this script loads still sees the keys. That setup is rare.
 - Browsers: current Chrome, Edge, Firefox and Safari, on desktop and mobile. It needs Shadow DOM and `fetch`.
-
-## FAQ
-
-**Does it change my page?**
-No. It adds one host element to `<html>` and draws inside its Shadow DOM. Your DOM, CSS and event handlers stay as they are.
-
-**Do readers need to sign up?**
-No. A reader types a name once, and the browser remembers it. The trade-off is that names are not verified: see [Security and limits](#security-and-limits).
-
-**Can a reader delete or edit a comment?**
-No. Only the owner can, with the [owner CLI](#owner-cli-reading-and-moderating-comments). Deletes are soft on both backends and can be undone with `restore`.
-
-**Does it work on a slide deck, a single-page app or a prototype?**
-Yes. Without an adapter, pins still land on the right element when it is on screen. Add the [adapter](#pages-with-state-the-adapter) so the list can bring back the right slide, tab or screen.
-
-**Can the pages and the comments server be on different domains?**
-Yes. Allow the page's origin with `ALLOWED_ORIGINS` (Cloudflare) or `--allow-origin` (Node), and set `data-api` on the script tag.
-
-**Can I move comments from one backend to the other?**
-Not in 1.0.0. There is no export or import command yet, and the server sets `id` and `at` on every post, so re-posting records would not keep them.
-
-**What does it cost?**
-On Cloudflare, the free Workers plan covers roughly 500 comments a day across all pages. On Node, whatever the server costs you. The details are in [Data model and storage](#data-model-and-storage).
-
-**What happens when a reader is offline?**
-The comment stays on screen as "Not sent", survives a reload, and is sent again when the connection comes back.
 
 ## Testing
 
@@ -410,11 +449,38 @@ LICENSE, NOTICE                  Apache-2.0
 SKILL.md                         instructions for Claude Code
 ```
 
+## Requirements
+
+- **Any static HTML page**: an explainer, mockup, prototype, deck or report. The client needs a current Chrome, Edge, Firefox or Safari, on desktop or mobile.
+- **A place to store comments**, one of:
+  - **Node 22.13 or later** for the self-hosted server. No npm packages.
+  - **A Cloudflare account** with Pages and Workers KV.
+  - **Docker**, optional, to run the Node server in a container.
+- **Python 3.8 or later** for the owner CLI. Standard library only.
+- To run the tests: `pip install playwright && python -m playwright install chromium`, plus `npx wrangler` for the Cloudflare suite.
+
+## FAQ
+
+**Do reviewers need to sign up?**
+No. A reader types a name once, and the browser remembers it. The trade-off is that names are not verified, so use unlisted review links and nothing that needs identity. See [Security and limits](#security-and-limits).
+
+**Will it change or break my page?**
+No. It adds one host element to `<html>` and draws inside its Shadow DOM. Your DOM, CSS and event handlers stay as they are, and the picking click and typed keys never reach the page.
+
+**Can a reader delete or edit a comment?**
+No. Only the owner can, with the [owner CLI](#owner-cli-reading-and-moderating-comments). Deletes are soft on both backends and can be undone with `restore`.
+
+**Does it work on a slide deck, a single-page app or a prototype?**
+Yes. Without an adapter, pins still land on the right element when it is on screen. Add the [adapter](#pages-with-state-the-adapter) so the list can bring back the right slide, tab or screen.
+
+**What does it cost, and where does my data go?**
+The code is free under Apache-2.0. On Cloudflare, the free Workers plan covers roughly 500 comments a day across all pages; on Node, it costs whatever your server costs. The comments stay in your own KV namespace or SQLite file. Nothing is sent anywhere else.
+
 ## Changelog
 
 The full history is in [CHANGELOG.md](CHANGELOG.md), in Keep a Changelog format.
 
-**Latest: [1.0.0] - 2026-09-30.** The backend is now swappable. A self-hosted Node server on SQLite joins the Cloudflare function, with token-protected owner endpoints and a Dockerfile. CORS is opt-in on both backends. `comments_cli.py` gains `--backend node`. The Comments panel shows its version with a "What's new" link. Fixed: cross-origin pages could not reach the endpoint, and the 8 KB limit counted characters instead of bytes.
+**Latest: [1.0.1] - 2026-10-01.** The README is rewritten: the shift, the gap, the fix, the loop and a capability table come first, and every technical section is kept. **Before that, [1.0.0] - 2026-09-30.** The backend is now swappable. A self-hosted Node server on SQLite joins the Cloudflare function, with token-protected owner endpoints and a Dockerfile. CORS is opt-in on both backends. `comments_cli.py` gains `--backend node`. The Comments panel shows its version with a "What's new" link. Fixed: cross-origin pages could not reach the endpoint, and the 8 KB limit counted characters instead of bytes.
 
 ## Contributing
 
@@ -428,4 +494,4 @@ Issues and pull requests are welcome.
 
 ## License
 
-Licensed under the Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Licensed under the Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The [AI Prototype Kit](https://github.com/BrianArfi/ai-prototype-kit) bundles this project under the same license.
