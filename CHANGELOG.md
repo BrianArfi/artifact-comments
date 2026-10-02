@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+- README only: a concrete problem scenario, who it is for and not for, a before/after table, and four new GIFs. `docs/hero.gif`, `docs/before-after.gif` and `docs/how-it-works.gif` are illustrations built on real screenshots of the client; `docs/owner-demo.gif` is a real run of a reader comment and the owner CLI (`list`, then `delete`). Script options, requirements, limits and files move into collapsed sections. `python docs/src/render.py owner` and `anim` re-render the new GIFs. No behaviour changes.
+
 ## [1.0.3] - 2026-10-01
 
 ### Changed
