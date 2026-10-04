@@ -34,7 +34,7 @@ The faster AI builds the page, the more of this you get. artifact-comments adds 
 - need verified identity, roles or permissions. Anyone with the link can comment under any name
 - need statuses, assignees or sync to Jira or Linear. A hosted review tool fits better (see [How it compares](docs/comparison.md))
 - cannot add a script tag to the page, or cannot run a small server or a Cloudflare Pages project
-- want readers to edit or delete their own comments. Only the owner moderates, from the terminal
+- want readers to edit their comments. Readers can delete their own, but nobody can edit
 
 ## Before and after
 
@@ -55,7 +55,7 @@ The faster AI builds the page, the more of this you get. artifact-comments adds 
 2. **Readers click a part.** They press **Comment**, click anything, type a name once and write. A numbered pin lands on that spot.
 3. **Others reply** in the pin's thread. Everyone who opens the link sees it. Open tabs check for new comments every 30 seconds.
 4. **Comments are saved on your backend**: a Cloudflare Pages Function with Workers KV, or one Node file with SQLite. Same API on both.
-5. **You read and moderate** from the same link, or from the terminal with the owner CLI: `list`, `delete`, `restore`.
+5. **You read and moderate** from the same link, or from the terminal with the owner CLI: `list`, `delete`, `restore`. Readers delete their own comments in the page, and you delete any comment there in owner mode (`?ac-owner=<owner key>`).
 
 ![Illustration of the flow in five cards that draw in one by one, with a lime dot moving along each arrow: 1 Add one script tag, 2 Readers click a part and a pin lands, 3 Others reply in one thread, 4 Saved on your backend (Cloudflare Pages + KV, or Node 22.13+ + SQLite), 5 You read and moderate with comments_cli.py. A side note lists what you do not need: reviewer accounts, npm packages or a build step, a third-party comment service](docs/how-it-works.gif)
 
@@ -123,7 +123,7 @@ The same keys (`slug`, `api`, `position`, `changelog`) can also be set on `windo
 <summary><b>Security and limits</b></summary>
 
 - **No login.** Anyone who can open the page can comment and give any name. The pages are meant to be unlisted review links. Do not use this for anything that needs identity.
-- **Moderation** is owner-only, through the CLI. There is no delete or edit button in the page.
+- **Deleting** happens in the page. Authors delete their own comments, with a key their browser kept when they posted. The owner deletes any comment in owner mode (`?ac-owner=<owner key>`). There is no edit. The CLI lists, restores and repairs.
 - **Text only.** All comment content is rendered as text, never as HTML.
 - **Owner endpoints** on the Node server are off until a token is set, need `Authorization: Bearer <token>`, and never send CORS headers.
 - **CORS is opt-in** on both backends. Unset, only same-origin pages can post.
@@ -186,14 +186,14 @@ Yes. Point `data-api` at your comments server and allow the page's origin on the
 The comment stays on screen as "Not sent" with a Retry button. It survives a reload and is sent again when the browser is back online.
 
 **Can a reader delete or edit a comment?**
-No. Only the owner can, with the [owner CLI](docs/owner-cli.md). Deletes are soft on both backends and can be undone with `restore`.
+A reader can delete their own comments, from the browser they posted them in. Nobody can edit. The owner can delete any comment, in the page with owner mode or with the [owner CLI](docs/owner-cli.md). Deletes are soft on both backends and can be undone with `restore`.
 
 **What does it cost, and where does my data go?**
 The code is free under Apache-2.0. On Cloudflare, the free Workers plan covers roughly 500 comments a day across all pages; on Node, it costs whatever your server costs. The comments stay in your own KV namespace or SQLite file. Nothing is sent anywhere else.
 
 ## Changelog
 
-The full history is in [CHANGELOG.md](CHANGELOG.md), in Keep a Changelog format. **Latest: [1.0.3] - 2026-10-01.** New README hero and demo GIF, recorded from the real UI. No behaviour changes. **Before that, [1.0.0] - 2026-09-30.** The backend is now swappable: a self-hosted Node server on SQLite joins the Cloudflare function, with token-protected owner endpoints, a Dockerfile and opt-in CORS.
+The full history is in [CHANGELOG.md](CHANGELOG.md), in Keep a Changelog format. **Latest: [1.1.0] - 2026-10-04.** Delete from the page: authors delete their own comments, the owner deletes any comment in owner mode, and an unsent comment can be discarded. **Before that, [1.0.0] - 2026-09-30.** The backend is now swappable: a self-hosted Node server on SQLite joins the Cloudflare function, with token-protected owner endpoints, a Dockerfile and opt-in CORS.
 
 ## Contributing
 
